@@ -1,0 +1,41 @@
+snippet main "main() function" b
+int main (int argc, char *argv[])
+{
+	$0
+	return 0;
+}
+endsnippet
+
+snippet cmt "Comment"
+/* $1 */
+endsnippet
+
+snippet dvoid "Declaration of void() function" b
+void $1 ($2) ;
+endsnippet
+
+snippet void "New void() function" b
+void $1 ($2)
+{
+	$0
+}
+endsnippet
+
+snippet dint "Declaration of int() function" b
+int $1 ($2) ;
+endsnippet
+
+snippet int "New int() function" b
+int $1 ($2)
+{
+	$0
+}
+endsnippet
+
+snippet inc "Include library header files" b
+#include <$1.h>
+endsnippet
+
+snippet printf "printf function" b
+printf("$1"$2);
+endsnippet

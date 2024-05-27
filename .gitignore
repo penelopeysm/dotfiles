@@ -1,0 +1,10 @@
+.vim/.netrwhist
+**/.DS_Store
+.gitconfig
+
+.config/*
+!.config/fd
+!.config/lambda-term-inputrc
+
+.nvim/plugged
+.vim/plugged
