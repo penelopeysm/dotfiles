@@ -23,6 +23,18 @@ else LAPTOP="unknown"   # I don't think I use anything else
 fi
 
 
+# Homebrew setup for work laptop (needs to be at the top because of PATH)
+if [[ "$LAPTOP" == "ati" ]]; then
+    # Homebrew setup for M1 Mac
+    export HOMEBREW_PREFIX="/opt/homebrew";
+    export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+    export HOMEBREW_REPOSITORY="/opt/homebrew";
+    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+    export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+    export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+fi
+
+
 # Terminal prompt and colour scheme setup
 # Note that this requires the TERMCS environment variable to be set to either
 # "dark" or "light" to determine the terminal colour scheme. On both laptops, I
@@ -179,17 +191,6 @@ ipdfd () {
 
 # VSCode
 PATH=$PATH:"/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-
-
-if [[ "$LAPTOP" == "ati" ]]; then
-    # Homebrew setup for M1 Mac
-    export HOMEBREW_PREFIX="/opt/homebrew";
-    export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-    export HOMEBREW_REPOSITORY="/opt/homebrew";
-    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
-    export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-    export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-fi
 
 
 if [[ "$LAPTOP" == "Empoleon" ]]; then
