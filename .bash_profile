@@ -150,7 +150,7 @@ v () {
         echo "No venv found"
         return 1
     else
-        printf "\033[1m\033[38;2;242;114;204mActivating ${_SEARCH_FILE_RESULT}\033[0m\n"
+        printf "\033[1m\033[38;2;242;114;204mActivating:\033[0mt ${_SEARCH_FILE_RESULT}\n"
         source ${_SEARCH_FILE_RESULT}
     fi
 }
@@ -181,19 +181,23 @@ PATH="$HOME/.juliaup/bin:$PATH"
 jp () {
     # Try to get the project directory from the argument, or search for it
     if [ -n "$1" ]; then
-        _SEARCH_DIR_RESULT=$1
+        _PROJECT_DIR=$1
     else
         _search_file "Project.toml" 1
         if [ -n "${_SEARCH_FILE_RESULT}" ]; then
-            _SEARCH_DIR_RESULT=$(dirname ${_SEARCH_FILE_RESULT})
+            _PROJECT_DIR=$(dirname ${_SEARCH_FILE_RESULT})
         fi
     fi
     # If found, run Julia
-    if [ -n "${_SEARCH_DIR_RESULT}" ]; then
-        printf "\033[1m\033[38;2;242;114;204mRunning \`julia --project=${_SEARCH_DIR_RESULT}\`...\033[0m\n"
-        julia --project=${_SEARCH_DIR_RESULT}
+    if [ -n "${_PROJECT_DIR}" ]; then
+        # Julia can create Project.toml files in unused dirs, we just need to issue a warning if it does
+        if [ ! -d "${_PROJECT_DIR}" ]; then
+            printf "\033[1m\033[38;2;224;163;7mWarning:\033[0m directory ${_PROJECT_DIR} does not exist. It will be created if you add any packages to this environment.\n"
+        fi
+        printf "\033[1m\033[38;2;242;114;204mRunning:\033[0m julia --project=${_PROJECT_DIR}...\n"
+        julia --project=${_PROJECT_DIR}
     else
-        echo "No Project.toml found"
+        echo "No Project.toml found; use \`jp .\` to make a new project here"
         return 1
     fi
 }
