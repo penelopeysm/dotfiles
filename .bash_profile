@@ -91,7 +91,6 @@ PATH="${HOME}/.local/bin:${PATH}"
 # Shell utils
 alias c="cd"
 alias l="ls"
-alias v="vim"
 alias g="git"
 alias n="nvim"
 alias nn="nvim --"  # Useful for SvelteKit...
@@ -99,8 +98,20 @@ alias t="tmux"
 alias sl="ls"
 alias gti="git"
 alias dc="cd"
+alias pcra="pre-commit run -a"
+if ! [ -x "$(command -v pinentry-mac)" ]; then
+    alias pinentry="pinentry-mac"
+fi
 nf () {
-    vfname=$(fzf)
+    if ! git_top_level=$(git rev-parse --show-toplevel 2>/dev/null); then
+        vfname=$(fzf)
+    else
+        relpath=$(git ls-files $git_top_level --full-name | fzf)
+        if [ ! -z $relpath ]; then
+            vfname="$git_top_level"/$relpath
+        fi
+    fi
+    unset git_top_level
     if [ ! -z $vfname ]; then nvim $vfname; unset vfname; fi
 }
 alias grep='ggrep --color=auto'
@@ -112,31 +123,38 @@ colours () {
     for i in {0..255}; do printf '\e[38;5;%dm%3d ' $i $i; (((i+3) % 18)) || printf '\e[0m\n'; done
     printf '\n\n'
 }
-
-# Python
-alias pip="python -m pip"
-venv () {
-    VENV_SEARCH_DIRS=("./" "../" "../../" "../../../" "../../../../" "../../../../../")
-    for dir in ${VENV_SEARCH_DIRS[@]}; do
+_search_file() {
+    # Search for a file
+    # Usage: _search_file <file_pattern> <depth>
+    local _SEARCH_DIRS=("./" "../" "../../" "../../../" "../../../../" "../../../../../")
+    for dir in ${_SEARCH_DIRS[@]}; do
         # fd options described here:
         # -I   don't use .gitignore etc. (venv's are usually gitignored)
         # -H   include hidden directories (e.g. .venv)
         # -p   print full path (makes it clearer what's being sourced)
-        # -d3  search up to 3 directories deep (don't find venvs in subdirs)
-        VENV_FILE=$(fd -IHp -d3 --max-results=1 'bin/activate$' ${dir} 2>/dev/null)
-        if [ ! -z ${VENV_FILE} ]; then
+        # -dn  search up to n directories deep (don't find venvs in subdirs)
+        local _FILE=$(fd -IHp -d${2} --max-results=1 "${1}$" ${dir} 2>/dev/null)
+        if [ -n "${_FILE}" ]; then
             break
         fi
     done
-    if [ -z ${VENV_FILE} ]; then
+    # Store the result here
+    _SEARCH_FILE_RESULT="${_FILE}"
+}
+
+# Python
+alias pip="python -m pip"
+v () {
+    _search_file "bin/activate" 3
+    if [ -z "${_SEARCH_FILE_RESULT}" ]; then
         echo "No venv found"
         return 1
     else
-        printf "\033[1m\033[38;2;242;114;204mActivating ${VENV_FILE}\033[0m\n"
-        source ${VENV_FILE}
+        printf "\033[1m\033[38;2;242;114;204mActivating ${_SEARCH_FILE_RESULT}\033[0m\n"
+        source ${_SEARCH_FILE_RESULT}
     fi
 }
-alias dvenv="deactivate"
+alias dv="deactivate"
 
 # Haskell
 [ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
@@ -158,6 +176,29 @@ test -r "${HOME}/.opam/opam-init/init.sh" && . "${HOME}/.opam/opam-init/init.sh"
 PATH="$HOME/.cargo/bin:$PATH"
 source "${HOME}/.cargo/env"
 
+# Julia
+PATH="$HOME/.juliaup/bin:$PATH"
+jp () {
+    # Try to get the project directory from the argument, or search for it
+    if [ -n "$1" ]; then
+        _SEARCH_DIR_RESULT=$1
+    else
+        _search_file "Project.toml" 1
+        if [ -n "${_SEARCH_FILE_RESULT}" ]; then
+            _SEARCH_DIR_RESULT=$(dirname ${_SEARCH_FILE_RESULT})
+        fi
+    fi
+    # If found, run Julia
+    if [ -n "${_SEARCH_DIR_RESULT}" ]; then
+        printf "\033[1m\033[38;2;242;114;204mRunning \`julia --project=${_SEARCH_DIR_RESULT}\`...\033[0m\n"
+        julia --project=${_SEARCH_DIR_RESULT}
+    else
+        echo "No Project.toml found"
+        return 1
+    fi
+}
+alias dv="deactivate"
+
 # Docker
 PATH="$HOME/.docker/bin:$PATH"
 
@@ -167,7 +208,7 @@ alias R='R --no-save'
 
 # Node.JS
 export PNPM_HOME="${HOME}/Library/pnpm"
-export PATH="${PNPM_HOME}:${PATH}"
+PATH="${PNPM_HOME}:${PATH}"
 
 # Inkscape
 # Export to same directory
@@ -216,11 +257,10 @@ if [[ "$LAPTOP" == "Empoleon" ]]; then
 fi
 
 # fzf setup (needs to come at the bottom)
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-export FZF_DEFAULT_COMMAND='(git status >/dev/null 2>&1 && fd --type file . $(git rev-parse --show-toplevel)) || fd -a --type file . $HOME
-'
+export FZF_DEFAULT_COMMAND='(git status >/dev/null 2>&1 && fd --type file . $(git rev-parse --show-toplevel)) || fd -a --type file . $HOME'
 export FZF_CTRL_T_COMMAND="fd --type file . ~"
 export FZF_ALT_C_COMMAND="fd --type directory . ~"
+eval "$(fzf --bash)"
 
 # direnv setup (needs to come at the bottom)
 eval "$(direnv hook bash)"

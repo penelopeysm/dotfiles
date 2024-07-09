@@ -1,13 +1,7 @@
 " Plugins {{{1
 call plug#begin('~/.vim/plugged')
 
-" Vim only
-if !has('nvim')
-    Plug '~/.vim/pack/plugins/start/vim-search-pulse'
-endif
-
 " Both vim and nvim
-Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-tbone'
 Plug 'wellle/targets.vim'
@@ -38,9 +32,17 @@ if !exists('g:vscode')
     Plug 'quarto-dev/quarto-vim'
 endif
 
-" Nvim only (and not vscode-nvim)
+" Vim only
+if !has('nvim')
+    Plug 'tpope/vim-commentary'
+    Plug '~/.vim/pack/plugins/start/vim-search-pulse'
+endif
+
+" Terminal nvim only
 if has('nvim') && !exists('g:vscode')
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plug 'numToStr/Comment.nvim'
+    Plug 'JoosepAlviste/nvim-ts-context-commentstring'
     Plug 'neovim/nvim-lspconfig'
     Plug 'ray-x/lsp_signature.nvim'
     Plug 'folke/trouble.nvim'
