@@ -145,6 +145,7 @@ _search_file() {
 # Python
 alias pip="python -m pip"
 v () {
+    _SEARCH_FILE_RESULT=""
     _search_file "bin/activate" 3
     if [ -z "${_SEARCH_FILE_RESULT}" ]; then
         echo "No venv found"
@@ -179,25 +180,39 @@ source "${HOME}/.cargo/env"
 # Julia
 PATH="$HOME/.juliaup/bin:$PATH"
 jp () {
-    # Try to get the project directory from the argument, or search for it
+    local OPTIND OPTARG _DEVELOP_COMMAND _ENV_DIR _ORIG_COMMAND
+    _ORIG_COMMAND="jp $@"
+    # Parse -d /path/to/mypackage
+    _DEVELOP_COMMAND=""
+    while getopts "d:" flag; do
+        case "${flag}" in
+            d) _DEVELOP_COMMAND=" -ie \"import Pkg; Pkg.develop(path=\\\"$(realpath ${OPTARG})\\\")\"";;
+            *) echo "Usage: jp [-d /path/to/mypackage] [project_dir]"; return 1;;
+        esac
+    done
+    shift $((OPTIND-1))
+    # Try to get the project directory from the remaining positional arguments;
+    # or search for it if none given
     if [ -n "$1" ]; then
-        _PROJECT_DIR=$1
+        _ENV_DIR="$1"
     else
+        _SEARCH_FILE_RESULT=""
         _search_file "Project.toml" 1
         if [ -n "${_SEARCH_FILE_RESULT}" ]; then
-            _PROJECT_DIR=$(dirname ${_SEARCH_FILE_RESULT})
+            _ENV_DIR=$(dirname ${_SEARCH_FILE_RESULT})
         fi
     fi
     # If found, run Julia
-    if [ -n "${_PROJECT_DIR}" ]; then
+    if [ -n "${_ENV_DIR}" ]; then
         # Julia can create Project.toml files in unused dirs, we just need to issue a warning if it does
-        if [ ! -d "${_PROJECT_DIR}" ]; then
-            printf "\033[1m\033[38;2;224;163;7mWarning:\033[0m directory ${_PROJECT_DIR} does not exist. It will be created if you add any packages to this environment.\n"
+        if [ ! -d "${_ENV_DIR}" ]; then
+            printf "\033[1m\033[38;2;224;163;7mWarning:\033[0m directory ${_ENV_DIR} does not exist. It will be created if you add any packages to this environment.\n"
         fi
-        printf "\033[1m\033[38;2;242;114;204mRunning:\033[0m julia --project=${_PROJECT_DIR}...\n"
-        julia --project=${_PROJECT_DIR}
+        _CMD="julia --project=${_ENV_DIR}${_DEVELOP_COMMAND}"
+        printf "\033[1m\033[38;2;242;114;204mRunning:\033[0m ${_CMD}\n"
+        eval ${_CMD}
     else
-        echo "No Project.toml found; use \`jp .\` to make a new project here"
+        echo "No Project.toml found; use \`$_ORIG_COMMAND .\` to make a new project here"
         return 1
     fi
 }
