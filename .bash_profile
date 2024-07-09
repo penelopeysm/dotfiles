@@ -197,7 +197,6 @@ jp () {
         return 1
     fi
 }
-alias dv="deactivate"
 
 # Docker
 PATH="$HOME/.docker/bin:$PATH"
