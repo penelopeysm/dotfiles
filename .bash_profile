@@ -118,10 +118,7 @@ alias grep='ggrep --color=auto'
 alias sed='gsed'
 alias ls='gls --color=auto'
 colours () {
-    curl -s https://gist.githubusercontent.com/HaleTom/89ffe32783f89f403bba96bd7bcd1263/raw/ | bash
-    printf '\n'
-    for i in {0..255}; do printf '\e[38;5;%dm%3d ' $i $i; (((i+3) % 18)) || printf '\e[0m\n'; done
-    printf '\n\n'
+    curl -s https://gist.githubusercontent.com/penelopeysm/75605a60aebfeeb2ce14649e5361b534/raw/5e39ad3fd2ac2b8b39b2ae6c486e21de32eaf290/colours.sh | bash
 }
 _search_file() {
     # Search for a file
@@ -140,6 +137,14 @@ _search_file() {
     done
     # Store the result here
     _SEARCH_FILE_RESULT="${_FILE}"
+}
+# Connect to Switch network
+switch () {
+    if [ -z "$1" ]; then
+        echo "Usage: switch <password>"
+        return 1
+    fi
+    networksetup -setairportnetwork en0 "switch_F24EA00100L" "$1" && open http://192.168.0.1/index.html
 }
 
 # Python
@@ -261,14 +266,6 @@ if [[ "$LAPTOP" == "Empoleon" ]]; then
             HandBrakeCLI -i "${fname}" -o "${fname%.MOV}.mp4" --preset-import-file "/Volumes/PorygonZ/poke_proofs/filter.json" -Z "proofs"
         done
         cd $OLD_PWD
-    }
-    # Connect to Switch network
-    switch () {
-        if [ -z "$1" ]; then
-            echo "Usage: switch <password>"
-            return 1
-        fi
-        networksetup -setairportnetwork en0 "switch_F24EA00100L" "$1" && open http://192.168.0.1/index.html
     }
     # Default path to NMR data
     export nmrd=/Volumes/PorygonZ/dphil/expn/nmr
