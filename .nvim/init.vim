@@ -140,8 +140,9 @@ require'lspconfig'.rust_analyzer.setup({
                 command = "clippy",
             },
         }
-        }
+    }
 })
+require'lspconfig'.julials.setup{on_attach = on_attach}
 require'lspconfig'.clangd.setup{on_attach = on_attach}
 require'lspconfig'.hls.setup{on_attach = on_attach}
 require'lspconfig'.tsserver.setup{on_attach = on_attach}
@@ -170,26 +171,11 @@ function! s:QRP() abort
 endfunction
 command! QRP call s:QRP()
 " }}}1
-" Trouble {{{1
-nnoremap <leader>d <Cmd>TroubleToggle<CR>
-lua << EOF
-require("trouble").setup {
-    padding = false,
-    icons = false,
-    fold_open = "v", -- icon used for open folds
-    fold_closed = ">", -- icon used for closed folds
-    indent_lines = false, -- add an indent guide below the fold icons
-    signs = {
-        -- icons / text used for a diagnostic
-        error = "error",
-        warning = "warn",
-        hint = "hint",
-        information = "info"
-        },
-    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
-    }
-EOF
-" }}}1
+
+nnoremap <leader>d <Cmd>Trouble diagnostics toggle<CR>
+lua require "trouble".setup({preview={scratch=false}})
+
+lua require "Comment".setup()
 
 lua << EOF
 require "lsp_signature".setup({
