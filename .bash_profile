@@ -156,7 +156,7 @@ v () {
         echo "No venv found"
         return 1
     else
-        printf "\033[1m\033[38;2;242;114;204mActivating:\033[0mt ${_SEARCH_FILE_RESULT}\n"
+        printf "\033[1m\033[38;2;242;114;204mActivating:\033[0m ${_SEARCH_FILE_RESULT}\n"
         source ${_SEARCH_FILE_RESULT}
     fi
 }
