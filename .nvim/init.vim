@@ -10,6 +10,11 @@ if exists('g:vscode')
 endif
 set inccommand=
 
+" Set default foldmethod and foldexpr to Treesitter (can be overridden by
+" plugins etc)
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+
 " Load original vim config
 set runtimepath^=~/.vim runtimepath+=~/.vim/after
 source ~/.vimrc

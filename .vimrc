@@ -96,6 +96,9 @@ let mapleader=" "
 " I find I do this a lot
 nnoremap <C-j> 3<C-e>
 nnoremap <C-k> 3<C-y>
+" Fold and unfold
+nnoremap <Left> zm
+nnoremap <Right> zr
 " Syntax sync -- for long files where vim gets confused
 nnoremap <leader>ssf :syntax sync fromstart<CR>
 " Open directory containing current file
