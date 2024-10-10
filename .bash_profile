@@ -82,7 +82,7 @@ fi
 
 
 # General
-export IGNOREEOF=1
+# export IGNOREEOF=1
 export EDITOR=nvim
 source ~/.git-completion.bash
 source ~/.cabal-completion.bash
@@ -98,10 +98,28 @@ alias t="tmux"
 alias sl="ls"
 alias gti="git"
 alias dc="cd"
+alias http="open http://localhost:8000 && python -m http.server"
 alias pcra="pre-commit run -a"
 if ! [ -x "$(command -v pinentry-mac)" ]; then
     alias pinentry="pinentry-mac"
 fi
+# ng(): grep into nvim
+ng () {
+    if [ -z "$1" ]; then
+        error "Usage: ng <pattern>"
+    else
+        nvim $(rg -l "$1")
+    fi
+}
+# nt(): tempfile with nvim
+nt() {
+    if [ -z "$1" ]; then
+        nvim "$(gmktemp)"
+    else
+        nvim "$(gmktemp --suffix=."$1")"
+    fi
+}
+# nf(): fzf into nvim
 nf () {
     if ! git_top_level=$(git rev-parse --show-toplevel 2>/dev/null); then
         vfname=$(fzf)

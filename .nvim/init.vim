@@ -149,7 +149,6 @@ require'lspconfig'.tsserver.setup{on_attach = on_attach}
 require'lspconfig'.ocamllsp.setup{on_attach = on_attach}
 require'lspconfig'.r_language_server.setup{on_attach = on_attach}
 require'lspconfig'.svelte.setup{on_attach = on_attach}
-require'lspconfig'.svelte.setup{on_attach = on_attach}
 require'lspconfig'.eslint.setup{on_attach = on_attach}
 require'lspconfig'.astro.setup{on_attach = on_attach}
 EOF
@@ -171,11 +170,19 @@ function! s:QRP() abort
 endfunction
 command! QRP call s:QRP()
 " }}}1
+" {{{1 Commenting
+lua << EOF
+require('ts_context_commentstring').setup {
+  enable_autocmd = false,
+}
+require('Comment').setup {
+  pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
+}
+EOF
+" }}}1
 
 nnoremap <leader>d <Cmd>Trouble diagnostics toggle<CR>
 lua require "trouble".setup({preview={scratch=false}})
-
-lua require "Comment".setup()
 
 lua << EOF
 require "lsp_signature".setup({
