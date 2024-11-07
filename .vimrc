@@ -28,8 +28,8 @@ if !exists('g:vscode')
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
     Plug 'skywind3000/asyncrun.vim'
-    Plug 'hrsh7th/nvim-cmp'
     Plug 'quarto-dev/quarto-vim'
+    Plug 'jpalardy/vim-slime'
 endif
 
 " Vim only
@@ -41,6 +41,7 @@ endif
 " Terminal nvim only
 if has('nvim') && !exists('g:vscode')
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plug 'hrsh7th/nvim-cmp'
     Plug 'numToStr/Comment.nvim'
     Plug 'JoosepAlviste/nvim-ts-context-commentstring'
     Plug 'neovim/nvim-lspconfig'
@@ -252,6 +253,8 @@ let g:git_top_level = GitTopLevel()
 " }}}1
 
 " Plugin settings and mappings {{{1
+" vim-slime
+let g:slime_target = 'tmux'
 " easy-align
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
