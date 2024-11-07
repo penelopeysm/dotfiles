@@ -100,7 +100,7 @@ local on_attach = function(client, bufnr)
     end
   end, bufopts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+  vim.keymap.set('i', '<C-s>', vim.lsp.buf.signature_help, bufopts)
   vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, bufopts)
   vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
   vim.keymap.set('n', '<space>wl', function()
@@ -176,12 +176,5 @@ nnoremap <leader>d <Cmd>Trouble diagnostics toggle<CR>
 lua require "trouble".setup({preview={scratch=false}})
 
 lua require "Comment".setup()
-
-lua << EOF
-require "lsp_signature".setup({
-    hint_prefix = "🐧 ",
-    trigger_on_newline = false,
-})
-EOF
 
 " vim: foldmethod=marker
