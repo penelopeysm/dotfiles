@@ -98,7 +98,7 @@ alias t="tmux"
 alias sl="ls"
 alias gti="git"
 alias dc="cd"
-alias http="open http://localhost:8000 && python -m http.server"
+alias http="open http://localhost:8194 && python -m http.server 8194"
 alias pcra="pre-commit run -a"
 if ! [ -x "$(command -v pinentry-mac)" ]; then
     alias pinentry="pinentry-mac"
@@ -202,41 +202,21 @@ source "${HOME}/.cargo/env"
 
 # Julia
 PATH="$HOME/.juliaup/bin:$PATH"
-jp () {
-    local OPTIND OPTARG _DEVELOP_COMMAND _ENV_DIR _ORIG_COMMAND
-    _ORIG_COMMAND="jp $@"
-    # Parse -d /path/to/mypackage
-    _DEVELOP_COMMAND=""
-    while getopts "d:" flag; do
-        case "${flag}" in
-            d) _DEVELOP_COMMAND=" -ie \"import Pkg; Pkg.develop(path=\\\"$(realpath ${OPTARG})\\\")\"";;
-            *) echo "Usage: jp [-d /path/to/mypackage] [project_dir]"; return 1;;
-        esac
-    done
-    shift $((OPTIND-1))
-    # Try to get the project directory from the remaining positional arguments;
-    # or search for it if none given
-    if [ -n "$1" ]; then
-        _ENV_DIR="$1"
+jf() {
+    if [ -z "$1" ]; then
+        DIR="."
     else
-        _SEARCH_FILE_RESULT=""
-        _search_file "Project.toml" 1
-        if [ -n "${_SEARCH_FILE_RESULT}" ]; then
-            _ENV_DIR=$(dirname ${_SEARCH_FILE_RESULT})
-        fi
+        DIR="$1"
     fi
-    # If found, run Julia
-    if [ -n "${_ENV_DIR}" ]; then
-        # Julia can create Project.toml files in unused dirs, we just need to issue a warning if it does
-        if [ ! -d "${_ENV_DIR}" ]; then
-            printf "\033[1m\033[38;2;224;163;7mWarning:\033[0m directory ${_ENV_DIR} does not exist. It will be created if you add any packages to this environment.\n"
-        fi
-        _CMD="julia --project=${_ENV_DIR}${_DEVELOP_COMMAND}"
-        printf "\033[1m\033[38;2;242;114;204mRunning:\033[0m ${_CMD}\n"
-        eval ${_CMD}
+    julia -e "using JuliaFormatter; format(\"$DIR\")"
+    echo Formatted.
+}
+jp() {
+    # Thanks chatgpt
+    if [[ "$1" =~ ^\+[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+        julia "$1" --project=. "${@:2}"
     else
-        echo "No Project.toml found; use \`$_ORIG_COMMAND .\` to make a new project here"
-        return 1
+        julia --project=. "$@"
     fi
 }
 
