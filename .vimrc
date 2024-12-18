@@ -45,7 +45,6 @@ if has('nvim') && !exists('g:vscode')
     Plug 'numToStr/Comment.nvim'
     Plug 'JoosepAlviste/nvim-ts-context-commentstring'
     Plug 'neovim/nvim-lspconfig'
-    Plug 'ray-x/lsp_signature.nvim'
     Plug 'folke/trouble.nvim'
     Plug 'folke/lsp-colors.nvim'
     Plug 'quarto-dev/quarto-nvim'
