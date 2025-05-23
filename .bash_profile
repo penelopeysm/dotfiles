@@ -100,6 +100,9 @@ alias gti="git"
 alias dc="cd"
 alias http="open http://localhost:8194 && python -m http.server 8194"
 alias pcra="pre-commit run -a"
+alias gpc="gh pr checkout"
+alias grhh="git reset --hard HEAD"
+alias gpl="git pull"
 if ! [ -x "$(command -v pinentry-mac)" ]; then
     alias pinentry="pinentry-mac"
 fi
@@ -202,26 +205,53 @@ source "${HOME}/.cargo/env"
 
 # Julia
 PATH="$HOME/.juliaup/bin:$PATH"
-jf() {
-    if [ -z "$1" ]; then
-        DIR="."
-    else
-        DIR="$1"
-    fi
-    julia -e "using JuliaFormatter; format(\"$DIR\")"
-    echo Formatted.
-}
 jp() {
     # Thanks chatgpt
-    if [[ "$1" =~ ^\+[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+    if [[ "$1" =~ ^\+.+$ ]]; then
         julia "$1" --project=. "${@:2}"
     else
         julia --project=. "$@"
     fi
 }
+# JuliaFormatter binary ... https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
+export _JULIA_FORMATTER_SO=$HOME/.julia/formatter.so
+jf() {
+    project=${1:-$PWD}
+    OLD=$PWD
+    if [ -e "$_JULIA_FORMATTER_SO" ]; then
+        :
+    else
+        echo "Could not find $_JULIA_FORMATTER_SO, so will build it..."
+        _build_jformat
+    fi
+    cd $project
+    julia --startup-file=no --threads=auto -J $_JULIA_FORMATTER_SO -O0 --compile=min -e 'using JuliaFormatter; format(".")'
+    if [ $? -ne 0 ]; then
+        printf "\n\nFailed to run JuliaFormatter; you may need to regenerate the sysimage. To do this, run the following command:\n\n    rm -f \"$_JULIA_FORMATTER_SO\"; _build_jformat\n"
+        return 1
+    fi
+    cd $OLD
+}
+_build_jformat() {
+    # Build a formatting image using an example project
+    OLD=$PWD
+    WORKDIR=$(mktemp -d)
+    cd $WORKDIR
+    git clone --depth 1 --quiet https://github.com/TuringLang/Turing.jl  # Not used; just an example project
+    cd Turing.jl
+    { 
+        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); Pkg.add(name="JuliaFormatter", version="1"); open("precompile_file.jl", "w") do io; write(io, "using JuliaFormatter; format(\".\")"); end; using PackageCompiler; create_sysimage(["JuliaFormatter"]; sysimage_path="'$_JULIA_FORMATTER_SO'", precompile_execution_file="precompile_file.jl")'
+    } || {
+        echo "Building format file failed. Exiting."
+    }
+    cd $OLD
+}
 
 # Docker
+# I think the first of these is Homebrew and the other is the app downloaded from Docker website
+# but not 100% sure
 PATH="$HOME/.docker/bin:$PATH"
+PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
 
 # R
 alias r='R --no-save'

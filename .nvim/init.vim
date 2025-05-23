@@ -12,8 +12,11 @@ set inccommand=
 
 " Set default foldmethod and foldexpr to Treesitter (can be overridden by
 " plugins etc)
-set foldmethod=expr
-set foldexpr=nvim_treesitter#foldexpr()
+" TODO: This was causing problems with Julia (it would fold lines randomly
+" when I deleted a line with `dd`). Since most of my work is on Julia I've
+" just chosen to disable it for now.
+" set foldmethod=expr
+" set foldexpr=nvim_treesitter#foldexpr()
 
 " Load original vim config
 set runtimepath^=~/.vim runtimepath+=~/.vim/after
@@ -55,6 +58,7 @@ require'nvim-treesitter.configs'.setup {
         "svelte",
         "rust",
         "astro",
+        "julia",
     },
     highlight = {
         enable = true,
@@ -122,16 +126,18 @@ end
 
 -- Servers.
 -- see https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
-require'lspconfig'.pylsp.setup({on_attach = on_attach,
-    settings = {
-        pylsp = {
-            plugins = {
-                pyls_black = { enabled = true },
-                isort = { enabled = true, profile = "black" },
+if vim.fn.executable('pylsp') == 1 then
+    require'lspconfig'.pylsp.setup({on_attach = on_attach,
+        settings = {
+            pylsp = {
+                plugins = {
+                    pyls_black = { enabled = true },
+                    isort = { enabled = true, profile = "black" },
+                },
             },
         },
-    },
-})
+    })
+end
 require'lspconfig'.rust_analyzer.setup({
     on_attach = on_attach,
     settings = {
@@ -145,7 +151,7 @@ require'lspconfig'.rust_analyzer.setup({
 require'lspconfig'.julials.setup{on_attach = on_attach}
 require'lspconfig'.clangd.setup{on_attach = on_attach}
 require'lspconfig'.hls.setup{on_attach = on_attach}
-require'lspconfig'.tsserver.setup{on_attach = on_attach}
+require'lspconfig'.ts_ls.setup{on_attach = on_attach}
 require'lspconfig'.ocamllsp.setup{on_attach = on_attach}
 require'lspconfig'.r_language_server.setup{on_attach = on_attach}
 require'lspconfig'.svelte.setup{on_attach = on_attach}
