@@ -201,7 +201,7 @@ test -r "${HOME}/.opam/opam-init/init.sh" && . "${HOME}/.opam/opam-init/init.sh"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"
-[ -f "$HOME/.cargo/env"] && source "${HOME}/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && source "${HOME}/.cargo/env"
 
 # Julia
 PATH="$HOME/.juliaup/bin:$PATH"
