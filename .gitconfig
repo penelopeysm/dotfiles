@@ -1,7 +1,16 @@
 [user]
     name = Penelope Yong
     email = penelopeysm@gmail.com
-    signingkey = 8FD4BA55F022CE2B
+
+[include]
+    path = ~/.gitsigningkey
+# This file should look like:
+#
+# [user]
+#     signingkey = ......
+#
+# where the key is obtained via gpg --list-secret-keys --keyid-format=long
+
 [commit]
     gpgsign = true
 [alias]
