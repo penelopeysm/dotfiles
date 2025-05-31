@@ -1,6 +1,5 @@
 .vim/.netrwhist
 **/.DS_Store
-.gitconfig
 
 .config/*
 !.config/fd
