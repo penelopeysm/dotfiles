@@ -103,6 +103,13 @@ alias pcra="pre-commit run -a"
 alias gpc="gh pr checkout"
 alias grhh="git reset --hard HEAD"
 alias gpl="git pull"
+alias gaa="git add -A"
+alias grc="git rebase --continue"
+alias gra="git rebase --abort"
+alias gmc="git merge --continue"
+alias gma="git merge --abort"
+alias gcpc="git cherry-pick --continue"
+alias gcpa="git cherry-pick --abort"
 if ! [ -x "$(command -v pinentry-mac)" ]; then
     alias pinentry="pinentry-mac"
 fi
