@@ -201,7 +201,7 @@ test -r "${HOME}/.opam/opam-init/init.sh" && . "${HOME}/.opam/opam-init/init.sh"
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"
-source "${HOME}/.cargo/env"
+[ -f "$HOME/.cargo/env"] && source "${HOME}/.cargo/env"
 
 # Julia
 PATH="$HOME/.juliaup/bin:$PATH"
@@ -284,7 +284,6 @@ ipdfd () {
 # VSCode
 PATH=$PATH:"/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 
-
 if [[ "$LAPTOP" == "Empoleon" ]]; then
     # Handbrake proofs
     hb () {
@@ -295,8 +294,6 @@ if [[ "$LAPTOP" == "Empoleon" ]]; then
         done
         cd $OLD_PWD
     }
-    # Default path to NMR data
-    export nmrd=/Volumes/PorygonZ/dphil/expn/nmr
 fi
 
 # fzf setup (needs to come at the bottom)
@@ -304,9 +301,6 @@ export FZF_DEFAULT_COMMAND='(git status >/dev/null 2>&1 && fd --type file . $(gi
 export FZF_CTRL_T_COMMAND="fd --type file . ~"
 export FZF_ALT_C_COMMAND="fd --type directory . ~"
 eval "$(fzf --bash)"
-
-# direnv setup (needs to come at the bottom)
-eval "$(direnv hook bash)"
 
 # export PATH
 export PATH

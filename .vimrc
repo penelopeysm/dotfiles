@@ -10,7 +10,6 @@ Plug 'penelopeysm/edge'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
-Plug 'SirVer/ultisnips'
 Plug 'lervag/vimtex'
 Plug 'itchyny/vim-haskell-indent'
 Plug 'tmhedberg/SimpylFold'
@@ -268,9 +267,6 @@ nnoremap <leader>f :Files<CR>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>g :GFiles<CR>
 nnoremap <leader>r :Rg<CR>
-" }}}2
-" Use C-S for ultisnips, tab is reserved for VimCompletesMe
-let g:UltiSnipsExpandTrigger="<C-S>"
 " }}}2
 " }}}1
 
