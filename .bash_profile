@@ -231,35 +231,63 @@ jp() {
     fi
 }
 # JuliaFormatter binary ... https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
-export _JULIA_FORMATTER_SO=$HOME/.julia/formatter.so
-jf() {
-    project=${1:-$PWD}
+export _JULIA_FORMATTER_V1_SO=$HOME/.julia/formatterv1.so
+export _JULIA_FORMATTER_V2_SO=$HOME/.julia/formatterv2.so
+_jf() {
+    project=$1
+    VERSION=$2
     OLD=$PWD
-    if [ -e "$_JULIA_FORMATTER_SO" ]; then
-        :
+    if [[ "$VERSION" == "1" ]]; then
+        SO=$_JULIA_FORMATTER_V1_SO
+    elif [[ "$VERSION" == "2" ]]; then
+        SO=$_JULIA_FORMATTER_V2_SO
     else
-        echo "Could not find $_JULIA_FORMATTER_SO, so will build it..."
-        _build_jformat
+        >&2 echo "error: version (2nd argument) must be either 1 or 2"
+        return 1
     fi
+    if [[ ! -e "$SO" ]]; then
+        echo "Could not find $SO, so will build it..."
+        _build_jformat $VERSION
+    fi
+    echo "Running JuliaFormatter v$VERSION on $project"
     cd $project
-    julia --startup-file=no --threads=auto -J $_JULIA_FORMATTER_SO -O0 --compile=min -e 'using JuliaFormatter; format(".")'
+    julia --startup-file=no --threads=auto -J $SO -O0 --compile=min -e 'res = JuliaFormatter.format("."); println(res ? "No changes made." : "Files were reformatted.")'
     if [ $? -ne 0 ]; then
-        printf "\n\nFailed to run JuliaFormatter; you may need to regenerate the sysimage. To do this, run the following command:\n\n    rm -f \"$_JULIA_FORMATTER_SO\"; _build_jformat\n"
+        >&2 printf "\n\nFailed to run JuliaFormatter; you may need to regenerate the sysimages. To do this, run the following command:\n\n    rm -f \"$SO\"; _build_jformat $VERSION\n\n"
         return 1
     fi
     cd $OLD
+}
+jf() {
+    # Run JuliaFormatter v1
+    project=${1:-$PWD}
+    _jf "$project" "1"
+}
+jf2() {
+    # Run JuliaFormatter v2
+    project=${1:-$PWD}
+    _jf "$project" "2"
 }
 _build_jformat() {
     # Build a formatting image using an example project
     OLD=$PWD
     WORKDIR=$(mktemp -d)
+    # take version either from argument or default to v1 since v2 is weird
+    VERSION=${1:-"1"}
+    if [[ "$VERSION" == "1" ]]; then
+        SO=$_JULIA_FORMATTER_V1_SO
+    else
+        SO=$_JULIA_FORMATTER_V2_SO
+    fi
     cd $WORKDIR
     git clone --depth 1 --quiet https://github.com/TuringLang/Turing.jl  # Not used; just an example project
     cd Turing.jl
     { 
-        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); Pkg.add(name="JuliaFormatter", version="1"); open("precompile_file.jl", "w") do io; write(io, "using JuliaFormatter; format(\".\")"); end; using PackageCompiler; create_sysimage(["JuliaFormatter"]; sysimage_path="'$_JULIA_FORMATTER_SO'", precompile_execution_file="precompile_file.jl")'
+        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); Pkg.add(name="JuliaFormatter", version="'$VERSION'"); open("precompile_file.jl", "w") do io; write(io, "using JuliaFormatter; format(\".\")"); end; using PackageCompiler; create_sysimage(["JuliaFormatter"]; sysimage_path="'$SO'", precompile_execution_file="precompile_file.jl")'
     } || {
-        echo "Building format file failed. Exiting."
+        >&2 echo "Building format file failed. Exiting."
+        cd $OLD
+        return 1
     }
     cd $OLD
 }
