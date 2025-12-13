@@ -233,6 +233,7 @@ jp() {
 # JuliaFormatter binary ... https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
 export _JULIA_FORMATTER_V1_SO=$HOME/.julia/formatterv1.so
 export _JULIA_FORMATTER_V2_SO=$HOME/.julia/formatterv2.so
+export _RUNIC_SO=$HOME/.julia/runic.so
 _jf() {
     project=$1
     VERSION=$2
@@ -254,6 +255,7 @@ _jf() {
     julia --startup-file=no --threads=auto -J $SO -O0 --compile=min -e 'res = JuliaFormatter.format("."); println(res ? "No changes made." : "Files were reformatted.")'
     if [ $? -ne 0 ]; then
         >&2 printf "\n\nFailed to run JuliaFormatter; you may need to regenerate the sysimages. To do this, run the following command:\n\n    rm -f \"$SO\"; _build_jformat $VERSION\n\n"
+        cd $OLD
         return 1
     fi
     cd $OLD
@@ -284,6 +286,40 @@ _build_jformat() {
     cd Turing.jl
     { 
         julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); Pkg.add(name="JuliaFormatter", version="'$VERSION'"); open("precompile_file.jl", "w") do io; write(io, "using JuliaFormatter; format(\".\")"); end; using PackageCompiler; create_sysimage(["JuliaFormatter"]; sysimage_path="'$SO'", precompile_execution_file="precompile_file.jl")'
+    } || {
+        >&2 echo "Building format file failed. Exiting."
+        cd $OLD
+        return 1
+    }
+    cd $OLD
+}
+runic() {
+    project=${1:-$PWD}
+    if [[ ! -e "$_RUNIC_SO" ]]; then
+        echo "Could not find $_RUNIC_SO, so will build it..."
+        _build_runic
+    fi
+    echo "Running Runic on $project"
+    OLD=$PWD
+    cd $project
+    julia --startup-file=no --threads=auto -J $_RUNIC_SO -O0 --compile=min -e 'exit(Runic.main(["--inplace", "."]))'
+    if [ $? -ne 0 ]; then
+        >&2 printf "\n\nFailed to run Runic; you may need to regenerate the sysimage. To do this, run the following command:\n\n    rm -f \"$_RUNIC_SO\"; _build_runic\n\n"
+        cd $OLD
+        return 1
+    fi
+    cd $OLD
+}
+_build_runic() {
+    # Build a formatting image using an example project
+    OLD=$PWD
+    WORKDIR=$(mktemp -d)
+    SO=$_RUNIC_SO
+    cd $WORKDIR
+    git clone --depth 1 --quiet https://github.com/TuringLang/Turing.jl  # Not used; just an example project
+    cd Turing.jl
+    { 
+        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); Pkg.add("Runic"); open("precompile_file.jl", "w") do io; write(io, "using Runic; exit(Runic.main([\"--inplace\", \".\"]))"); end; using PackageCompiler; create_sysimage(["Runic"]; sysimage_path="'$SO'", precompile_execution_file="precompile_file.jl")'
     } || {
         >&2 echo "Building format file failed. Exiting."
         cd $OLD
