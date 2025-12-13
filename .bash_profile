@@ -271,7 +271,7 @@ njr() {
     fi
 }
 
-# JuliaFormatter and Runig sysimages... adapted from https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
+# JuliaFormatter and Runic sysimages... adapted from https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
 export _JULIA_FORMATTER_V1_SO=$HOME/.julia/formatterv1.so
 export _JULIA_FORMATTER_V2_SO=$HOME/.julia/formatterv2.so
 export _RUNIC_SO=$HOME/.julia/runic.so
