@@ -270,36 +270,87 @@ njr() {
         mv "$HOME/.julia/environments" "$storage"
     fi
 }
-# JuliaFormatter binary ... https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
-export _JULIA_FORMATTER_SO=$HOME/.julia/formatter.so
-jf() {
+
+# JuliaFormatter and Runig sysimages... adapted from https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
+export _JULIA_FORMATTER_V1_SO=$HOME/.julia/formatterv1.so
+export _JULIA_FORMATTER_V2_SO=$HOME/.julia/formatterv2.so
+export _RUNIC_SO=$HOME/.julia/runic.so
+jf1() {
     project=${1:-$PWD}
-    OLD=$PWD
-    if [ -e "$_JULIA_FORMATTER_SO" ]; then
-        :
+    _juliaformat "$project" "JuliaFormatter@1"
+}
+jf2() {
+    project=${1:-$PWD}
+    _juliaformat "$project" "JuliaFormatter@2"
+}
+runic() {
+    project=${1:-$PWD}
+    _juliaformat "$project" "Runic"
+}
+_juliaformat() {
+    project=$1
+    FORMATTER=$2
+    if [[ "$FORMATTER" == "JuliaFormatter@1" ]]; then
+        SO=$_JULIA_FORMATTER_V1_SO
+        FORMAT_CMD='println(JuliaFormatter.format(".") ? "No changes made." : "Files were reformatted.")'
+    elif [[ "$FORMATTER" == "JuliaFormatter@2" ]]; then
+        SO=$_JULIA_FORMATTER_V2_SO
+        FORMAT_CMD='println(JuliaFormatter.format(".") ? "No changes made." : "Files were reformatted.")'
+    elif [[ "$FORMATTER" == "Runic" ]]; then
+        SO=$_RUNIC_SO
+        FORMAT_CMD='Runic.main(["--inplace", "."]); println("done")'
     else
-        echo "Could not find $_JULIA_FORMATTER_SO, so will build it..."
-        _build_jformat
+        >&2 echo "error: 2nd argument to _juliaformat must be either JuliaFormatter@1, JuliaFormatter@2, or Runic"
+        return 1
     fi
+    if [[ ! -e "$SO" ]]; then
+        echo "Could not find sysimage for $FORMATTER at $SO, so will build it..."
+        _build_formatter_so $FORMATTER
+    fi
+    echo "Running $FORMATTER on $project"
+    OLD=$PWD
     cd $project
-    julia --startup-file=no --threads=auto -J $_JULIA_FORMATTER_SO -O0 --compile=min -e 'using JuliaFormatter; format(".")'
+    julia --startup-file=no --threads=auto -J $SO -O0 --compile=min -e "$FORMAT_CMD"
     if [ $? -ne 0 ]; then
-        printf "\n\nFailed to run JuliaFormatter; you may need to regenerate the sysimage. To do this, run the following command:\n\n    rm -f \"$_JULIA_FORMATTER_SO\"; _build_jformat\n"
+        >&2 printf "\n\nFailed to run $FORMATTER; if the above error did not help identify the issue, you may need to regenerate the sysimages. To do this, run the following command:\n\n    rm -f \"$SO\"; _build_formatter_so $FORMATTER\n\n"
+        cd $OLD
         return 1
     fi
     cd $OLD
 }
-_build_jformat() {
-    # Build a formatting image using an example project
+_build_formatter_so() {
+    FORMATTER=$1
+    if [[ "$FORMATTER" == "JuliaFormatter@1" ]]; then
+        PKG_NAME="JuliaFormatter"
+        PKG_ADD_CMD='Pkg.add(name="JuliaFormatter", version="1")'
+        PRECOMPILE_FILE_CONTENT='"using JuliaFormatter; format(\".\")"'
+        SO=$_JULIA_FORMATTER_V1_SO
+    elif [[ "$FORMATTER" == "JuliaFormatter@2" ]]; then
+        PKG_NAME="JuliaFormatter"
+        PKG_ADD_CMD='Pkg.add(name="JuliaFormatter", version="2")'
+        PRECOMPILE_FILE_CONTENT='"using JuliaFormatter; format(\".\")"'
+        SO=$_JULIA_FORMATTER_V2_SO
+    elif [[ "$FORMATTER" == "Runic" ]]; then
+        PKG_NAME="Runic"
+        PKG_ADD_CMD='Pkg.add("Runic")'
+        PRECOMPILE_FILE_CONTENT='"using Runic; exit(Runic.main([\"--inplace\", \".\"]))"'
+        SO=$_RUNIC_SO
+    else
+        >&2 echo "error: unknown formatter '$FORMATTER', available options are JuliaFormatter@1, JuliaFormatter@2, Runic"
+        return 1
+    fi
     OLD=$PWD
     WORKDIR=$(mktemp -d)
     cd $WORKDIR
     git clone --depth 1 --quiet https://github.com/TuringLang/Turing.jl  # Not used; just an example project
     cd Turing.jl
+    echo "Building sysimage for formatter $FORMATTER at $SO"
     { 
-        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); Pkg.add(name="JuliaFormatter", version="1"); open("precompile_file.jl", "w") do io; write(io, "using JuliaFormatter; format(\".\")"); end; using PackageCompiler; create_sysimage(["JuliaFormatter"]; sysimage_path="'$_JULIA_FORMATTER_SO'", precompile_execution_file="precompile_file.jl")'
+        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); '$PKG_ADD_CMD';open("precompile_file.jl", "w") do io; write(io, '$PRECOMPILE_FILE_CONTENT'); end; using PackageCompiler; create_sysimage(["'$PKG_NAME'"]; sysimage_path="'$SO'", precompile_execution_file="precompile_file.jl")'
     } || {
-        echo "Building format file failed. Exiting."
+        >&2 echo "sysimage failed to build, exiting"
+        cd $OLD
+        return 1
     }
     cd $OLD
 }
