@@ -101,7 +101,10 @@ alias dc="cd"
 alias http="open http://localhost:8194 && python -m http.server 8194"
 alias pcra="pre-commit run -a"
 alias gpc="gh pr checkout"
+alias gcb="git checkout -b"
+alias gn="git checkout -b"  # as in `git new`
 alias grhh="git reset --hard HEAD"
+alias gp="git push"
 alias gpl="git pull"
 alias gaa="git add -A"
 alias grc="git rebase --continue"
@@ -110,6 +113,13 @@ alias gmc="git merge --continue"
 alias gma="git merge --abort"
 alias gcpc="git cherry-pick --continue"
 alias gcpa="git cherry-pick --abort"
+gri () {
+    if [ -z "$1" ]; then
+        git rebase -i main
+    else
+        git rebase -i "HEAD~$1"
+    fi
+}
 if ! [ -x "$(command -v pinentry-mac)" ]; then
     alias pinentry="pinentry-mac"
 fi

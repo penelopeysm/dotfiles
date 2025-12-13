@@ -51,6 +51,7 @@ if has('nvim') && !exists('g:vscode')
     Plug 'ldelossa/litee.nvim'
     Plug 'ldelossa/gh.nvim'
     Plug 'github/copilot.vim'
+    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 endif
 call plug#end()
 " }}}1

@@ -24,6 +24,7 @@
 	ci = commit
 	reci = recommit
     lg = log --graph
+    new = checkout -b
     delbranch = !git branch | grep -v "master" | grep -v "main" | grep -v $(git rev-parse --abbrev-ref HEAD) | xargs git branch -D 
 [core]
     editor = vim
