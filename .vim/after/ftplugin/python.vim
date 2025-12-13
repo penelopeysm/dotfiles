@@ -24,9 +24,6 @@ function RecalcFolds()
 endfunction
 autocmd BufWritePre <buffer> silent call RecalcFolds()
 
-" Import short forms
-iabbrev <buffer> inp import numpy as np
-iabbrev <buffer> impl import matplotlib.pyplot as plt
-iabbrev <buffer> iplt import matplotlib.pyplot as plt
-iabbrev <buffer> isns import seaborn as sns
-iabbrev <buffer> ipd import pandas as pd
+" Fix vim-slime python issues
+" https://github.com/jpalardy/vim-slime/tree/main/ftplugin/python
+let b:slime_bracketed_paste = 1

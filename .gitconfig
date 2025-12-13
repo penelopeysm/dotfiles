@@ -62,3 +62,5 @@
 	defaultBranch = main
 
 ; vim: ft=gitconfig
+[rerere]
+	enabled = true

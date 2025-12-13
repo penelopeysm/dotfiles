@@ -104,15 +104,19 @@ alias gpc="gh pr checkout"
 alias gcb="git checkout -b"
 alias gn="git checkout -b"  # as in `git new`
 alias grhh="git reset --hard HEAD"
+alias gc="git commit"
 alias gp="git push"
 alias gpl="git pull"
 alias gaa="git add -A"
-alias grc="git rebase --continue"
+alias grc="GIT_EDITOR=true git rebase --continue"
 alias gra="git rebase --abort"
-alias gmc="git merge --continue"
+alias gmc="GIT_EDITOR=true git merge --continue"
 alias gma="git merge --abort"
-alias gcpc="git cherry-pick --continue"
+alias gcpc="GIT_EDITOR=true git cherry-pick --continue"
 alias gcpa="git cherry-pick --abort"
+# The ultimate git combo ...
+alias gg="git add -A && git commit"
+alias ggg="git add -A && git commit && git push"
 gri () {
     if [ -z "$1" ]; then
         git rebase -i main
@@ -131,6 +135,8 @@ ng () {
         nvim $(rg -l "$1")
     fi
 }
+# open merge conflicts
+alias nmc="ng '<<<<<<'"
 # nt(): tempfile with nvim
 nt() {
     if [ -z "$1" ]; then
@@ -141,15 +147,23 @@ nt() {
 }
 # nf(): fzf into nvim
 nf () {
-    if ! git_top_level=$(git rev-parse --show-toplevel 2>/dev/null); then
-        vfname=$(fzf)
-    else
-        relpath=$(git ls-files $git_top_level --full-name | fzf)
-        if [ ! -z $relpath ]; then
-            vfname="$git_top_level"/$relpath
+    if [ -z "$1" ]; then
+        # argument not provided; check if in a git repo
+        if ! git_top_level=$(git rev-parse --show-toplevel 2>/dev/null); then
+            # if not, just use fd on current directory
+            vfname=$(fd --type f --absolute-path --hidden --follow --exclude .git . | fzf)
+        else
+            # if in a git repo, use git ls-files to list files in the repo
+            relpath=$(git ls-files $git_top_level --full-name | fzf)
+            if [ ! -z $relpath ]; then
+                vfname="$git_top_level"/$relpath
+            fi
         fi
+        unset git_top_level
+    else
+        # argument provided, list files in that directory
+        vfname=$(fd --type f --absolute-path --hidden --follow --exclude .git "$1" | fzf)
     fi
-    unset git_top_level
     if [ ! -z $vfname ]; then nvim $vfname; unset vfname; fi
 }
 alias grep='ggrep --color=auto'
@@ -157,6 +171,19 @@ alias sed='gsed'
 alias ls='gls --color=auto'
 colours () {
     curl -s https://gist.githubusercontent.com/penelopeysm/75605a60aebfeeb2ce14649e5361b534/raw/5e39ad3fd2ac2b8b39b2ae6c486e21de32eaf290/colours.sh | bash
+}
+ppt() {
+    # Create a PowerPoint theme font XML file for a given font name
+    [ -z "$1" ] && { echo "Usage: ppt \"<font name>\" (don't forget to quote fonts with spaces)"; return 1; }
+    echo "Creating PowerPoint theme font XML for font: $1. Your admin password may be required."
+    fontname_no_space=$(echo "$1" | sed 's/ /_/g')
+    OLDPWD=$(pwd)
+    PPTDIR='/Applications/Microsoft PowerPoint.app/Contents/Resources/Office Themes/Theme Fonts'
+    cd "${PPTDIR}"
+    sudo cp 'Calibri.xml' "${fontname_no_space}.xml"
+    sudo sed -i '' "s/Calibri/$1/g" "${fontname_no_space}.xml"
+    echo "Created ${PPTDIR}/${fontname_no_space}.xml. You can now select this font in PowerPoint under Slide Master."
+    cd "$OLDPWD"
 }
 _search_file() {
     # Search for a file
@@ -228,6 +255,19 @@ jp() {
         julia "$1" --project=. "${@:2}"
     else
         julia --project=. "$@"
+    fi
+}
+njr() {
+    # get rid of .julia/environments temporarily
+    storage=$HOME/.julia/_old_environments
+    # if that folder is present, that means we stored it there
+    # so we need to restore it
+    if [ -d "$storage" ]; then
+        rm -rf "$HOME/.julia/environments"
+        mv "$storage" "$HOME/.julia/environments"
+    else
+        # otherwise store it
+        mv "$HOME/.julia/environments" "$storage"
     fi
 }
 # JuliaFormatter binary ... https://github.com/domluna/JuliaFormatter.jl/issues/633#issuecomment-1518805248
@@ -314,10 +354,13 @@ if [[ "$LAPTOP" == "Empoleon" ]]; then
 fi
 
 # fzf setup (needs to come at the bottom)
-export FZF_DEFAULT_COMMAND='(git status >/dev/null 2>&1 && fd --type file . $(git rev-parse --show-toplevel)) || fd -a --type file . $HOME'
+export FZF_DEFAULT_COMMAND='(git status >/dev/null 2>&1 && fd --type file . $(git rev-parse --show-toplevel)) || fd -a --type file .'
 export FZF_CTRL_T_COMMAND="fd --type file . ~"
 export FZF_ALT_C_COMMAND="fd --type directory . ~"
 eval "$(fzf --bash)"
+
+# LLVM toolchain
+export PATH="/opt/homebrew/opt/llvm@20/bin:$PATH"
 
 # export PATH
 export PATH

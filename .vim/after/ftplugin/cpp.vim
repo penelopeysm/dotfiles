@@ -1,3 +1,5 @@
+set tabstop=2 shiftwidth=2
+
 inoremap <expr> <C-L><C-L> MkMatchparenMap()
 
 function! SaveCompileRun() abort
