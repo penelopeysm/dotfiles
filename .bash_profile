@@ -348,13 +348,14 @@ _build_formatter_so() {
     { 
         cmd='using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); '
         cmd+=$PKG_ADD_CMD
-        cmd+='open("precompile_file.jl", "w") do io; write(io, ' 
+        cmd+='; open("precompile_file.jl", "w") do io; write(io, ' 
         cmd+="$PRECOMPILE_FILE_CONTENT"
         cmd+='); end; using PackageCompiler; create_sysimage(["'
         cmd+=$PKG_NAME
         cmd+='"]; sysimage_path="'
         cmd+=$SO
         cmd+='", precompile_execution_file="precompile_file.jl")'
+        echo $cmd
         julia --startup-file=no --compile=yes -O3 --threads=auto -e "$cmd"
     } || {
         >&2 echo "sysimage failed to build, exiting"
