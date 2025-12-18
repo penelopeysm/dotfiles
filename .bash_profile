@@ -346,7 +346,16 @@ _build_formatter_so() {
     cd Turing.jl
     echo "Building sysimage for formatter $FORMATTER at $SO"
     { 
-        julia --startup-file=no --compile=yes -O3 --threads=auto -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); '$PKG_ADD_CMD';open("precompile_file.jl", "w") do io; write(io, '$PRECOMPILE_FILE_CONTENT'); end; using PackageCompiler; create_sysimage(["'$PKG_NAME'"]; sysimage_path="'$SO'", precompile_execution_file="precompile_file.jl")'
+        cmd='using Pkg; Pkg.activate(; temp=true); Pkg.add("PackageCompiler"); '
+        cmd+=$PKG_ADD_CMD
+        cmd+='open("precompile_file.jl", "w") do io; write(io, ' 
+        cmd+="$PRECOMPILE_FILE_CONTENT"
+        cmd+='); end; using PackageCompiler; create_sysimage(["'
+        cmd+=$PKG_NAME
+        cmd+='"]; sysimage_path="'
+        cmd+=$SO
+        cmd+='", precompile_execution_file="precompile_file.jl")'
+        julia --startup-file=no --compile=yes -O3 --threads=auto -e "$cmd"
     } || {
         >&2 echo "sysimage failed to build, exiting"
         cd $OLD
