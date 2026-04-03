@@ -5,3 +5,7 @@ set shiftwidth=2
 
 " Defined in ~/.vim/autoload/ocaml.vim
 nnoremap <silent> <buffer> <leader>i :<C-U>call ocaml#ToggleImplIntf()<CR>
+
+if has('nvim')
+  lua vim.treesitter.start()
+endif

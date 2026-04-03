@@ -23,3 +23,7 @@ iabbrev <buffer> iintmap import Data.IntMap (IntMap)<CR>import qualified Data.In
 iabbrev <buffer> iis import Data.IntSet (IntSet)<CR>import qualified Data.IntSet as IS
 iabbrev <buffer> iintset import Data.IntSet (IntSet)<CR>import qualified Data.IntSet as IS
 iabbrev <buffer> ine import Data.List.NonEmpty (NonEmpty)<CR>import qualified Data.List.NonEmpty as NE
+
+if has('nvim')
+  lua vim.treesitter.start()
+endif

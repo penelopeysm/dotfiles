@@ -242,6 +242,7 @@ fi
 alias de='dune exec --display=quiet -- '
 alias dbw='dune build --watch'
 test -r "${HOME}/.opam/opam-init/init.sh" && . "${HOME}/.opam/opam-init/init.sh" > /dev/null 2> /dev/null || true
+alias oe='eval "$(opam env)"'
 
 # Rust
 PATH="$HOME/.cargo/bin:$PATH"

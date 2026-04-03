@@ -5,3 +5,7 @@ nnoremap <buffer> <localleader>m
             \ cargo run %; 
             \ echo --------------------------------------------------;
             \ read -p "Press Enter to close"<CR>
+
+" Load original vim config
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+source ~/.vimrc

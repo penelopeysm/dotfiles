@@ -27,3 +27,7 @@ autocmd BufWritePre <buffer> silent call RecalcFolds()
 " Fix vim-slime python issues
 " https://github.com/jpalardy/vim-slime/tree/main/ftplugin/python
 let b:slime_bracketed_paste = 1
+
+if has('nvim')
+  lua vim.treesitter.start()
+endif

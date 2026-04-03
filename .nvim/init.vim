@@ -38,39 +38,32 @@ endif
 
 " Treesitter 
 lua << EOF
-require'nvim-treesitter.configs'.setup {
-    ensure_installed = {
-        "astro",
-        "vimdoc",
-        "python",
-        "haskell",
-        "typescript",
-        "javascript",
-        "html",
-        "css",
-        "c",
-        "cpp",
-        "vim",
-        "lua",
-        "ocaml",
-        "markdown",
-        "r",
-        "svelte",
-        "rust",
-        "astro",
-        "julia",
-    },
-    highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = true,
-    },
-    indent = {
-        enable = true,
-        disable = {"python"},
-    },
+require('nvim-treesitter').setup {
+  install_dir = vim.fn.stdpath('data') .. '/site'
+}
+require('nvim-treesitter').install {
+    "astro",
+    "vimdoc",
+    "python",
+    "haskell",
+    "typescript",
+    "javascript",
+    "html",
+    "css",
+    "c",
+    "cpp",
+    "vim",
+    "lua",
+    "ocaml",
+    "markdown",
+    "r",
+    "svelte",
+    "rust",
+    "astro",
+    "julia",
 }
 EOF
-" 
+
 " LSP 
 lua << EOF
 -- Mappings.

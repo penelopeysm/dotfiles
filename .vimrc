@@ -39,8 +39,7 @@ endif
 
 " Terminal nvim only
 if has('nvim') && !exists('g:vscode')
-    " master because of: https://github.com/nvim-treesitter/nvim-treesitter/issues/270#issuecomment-3177002342
-    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate', 'branch': 'master'}
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     Plug 'hrsh7th/nvim-cmp'
     Plug 'numToStr/Comment.nvim'
     Plug 'JoosepAlviste/nvim-ts-context-commentstring'
