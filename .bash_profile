@@ -42,36 +42,49 @@ fi
 git_branch() { 
     git symbolic-ref HEAD --short 2>/dev/null | /usr/bin/sed -E 's/.+/ (&)/'
 }
-RESET='\[$(tput sgr0)\]'
-# Note that the ANSI escape sequences themselves begin with \033 and end
-# with m. The surrounding \[ and \] are specific to prompt variables, and
-# are not needed when simply using bash's printf function (for example).
-if [[ $COLORTERM =~ ^(truecolor|24bit)$ ]]; then
-    if [[ "$TERMCS" == "dark" ]]; then
-        # Dark mode, truecolor terminal
-        PURPLE='\[\033[38;2;168;131;247m\]'
-        BLUE='\[\033[38;2;114;160;252m\]'
-        ORANGE='\[\033[38;2;217;147;63m\]'
-        PINK='\[\033[38;2;242;114;204m\]'
-        RED='\[\033[38;2;227;104;98m\]'
-    else
-        # Light mode, truecolor terminal
-        PURPLE='\[\033[38;2;204;137;217m\]'
-        BLUE='\[\033[38;2;93;173;226m\]'
-        PINK='\[\033[38;2;232;121;197m\]'
-        RED='\[\033[38;2;235;108;127m\]'
-        ORANGE='\[\033[38;2;237;164;69m\]'
-    fi
+if command -v starship &> /dev/null; then
+    # Use starship
+    # Some extra patches needed to avoid first blank line in terminal:
+    # https://github.com/spaceship-prompt/spaceship-prompt/issues/462#issuecomment-1564754315
+    show_newline() {
+        if [ -z "$NEW_LINE_BEFORE_PROMPT" ]; then NEW_LINE_BEFORE_PROMPT=1
+        elif [ "$NEW_LINE_BEFORE_PROMPT" -eq 1 ]; then echo ""
+        fi
+    }
+    PROMPT_COMMAND="show_newline"
+    eval "$(starship init bash)"
 else
-    # Dark or light modes, 256-colour terminal
-    PURPLE='\[\033[38;5;135m\]'
-    BLUE='\[\033[38;5;27m\]'
-    ORANGE='\[\033[38;5;208m\]'
-    PINK='\[\033[38;5;13m\]'
-    RED='\[\033[38;5;203m\]'
+    RESET='\[$(tput sgr0)\]'
+    # Note that the ANSI escape sequences themselves begin with \033 and end
+    # with m. The surrounding \[ and \] are specific to prompt variables, and
+    # are not needed when simply using bash's printf function (for example).
+    if [[ $COLORTERM =~ ^(truecolor|24bit)$ ]]; then
+        if [[ "$TERMCS" == "dark" ]]; then
+            # Dark mode, truecolor terminal
+            PURPLE='\[\033[38;2;168;131;247m\]'
+            BLUE='\[\033[38;2;114;160;252m\]'
+            ORANGE='\[\033[38;2;217;147;63m\]'
+            PINK='\[\033[38;2;242;114;204m\]'
+            RED='\[\033[38;2;227;104;98m\]'
+        else
+            # Light mode, truecolor terminal
+            PURPLE='\[\033[38;2;204;137;217m\]'
+            BLUE='\[\033[38;2;93;173;226m\]'
+            PINK='\[\033[38;2;232;121;197m\]'
+            RED='\[\033[38;2;235;108;127m\]'
+            ORANGE='\[\033[38;2;237;164;69m\]'
+        fi
+    else
+        # Dark or light modes, 256-colour terminal
+        PURPLE='\[\033[38;5;135m\]'
+        BLUE='\[\033[38;5;27m\]'
+        ORANGE='\[\033[38;5;208m\]'
+        PINK='\[\033[38;5;13m\]'
+        RED='\[\033[38;5;203m\]'
+    fi
+    ME="pysm"
+    export PS1="${PURPLE}${ME}${BLUE}@${LAPTOP}:${PINK}\w${RED}\$(git_branch) ${ORANGE}\$ ${RESET}"
 fi
-ME="pysm"
-export PS1="${PURPLE}${ME}${BLUE}@${LAPTOP}:${PINK}\w${RED}\$(git_branch) ${ORANGE}\$ ${RESET}"
 if [[ "$TERMCS" == "dark" ]]; then
     eval "$(gdircolors ~/.dircolors_dark)"
     export BAT_THEME="OneHalfDark"
@@ -360,10 +373,10 @@ _build_formatter_so() {
         julia --startup-file=no --compile=yes -O3 --threads=auto -e "$cmd"
     } || {
         >&2 echo "sysimage failed to build, exiting"
-        cd $OLD
-        return 1
+            cd $OLD
+            return 1
     }
-    cd $OLD
+cd $OLD
 }
 
 # Docker
@@ -422,7 +435,12 @@ export FZF_ALT_C_COMMAND="fd --type directory . ~"
 eval "$(fzf --bash)"
 
 # LLVM toolchain
-export PATH="/opt/homebrew/opt/llvm@20/bin:$PATH"
+export PATH="$(brew --prefix)/opt/llvm/bin:$PATH"
+
+# Direnv
+if command -v direnv &> /dev/null; then
+    eval "$(direnv hook bash)"
+fi
 
 # export PATH
 export PATH
