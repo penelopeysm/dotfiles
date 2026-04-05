@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 files=(".vimrc" \
     ".vim" \
-    ".nvim" \
+    ".config" \
     ".bash_profile" \
     ".dircolors_dark" \
     ".dircolors_light" \
@@ -27,8 +27,3 @@ for f in ${files[@]}; do
         printf "non-symlink file was detected:   %s\n" ${f}
     fi
 done
-
-# One more line to ensure nvim config is correctly detected
-if [[ ! -d ${HOME}/.config/nvim ]]; then
-    ln -s ${HOME}/.nvim ${HOME}/.config/nvim
-fi

@@ -1,0 +1,7 @@
+add_newline = false
+
+[c]
+commands = [[ 'clang', '--version' ], [ 'cc', '--version' ], [ 'gcc', '--version' ]]
+
+[directory]
+truncate_to_repo = false
