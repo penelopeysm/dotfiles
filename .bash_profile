@@ -437,6 +437,9 @@ eval "$(fzf --bash)"
 # LLVM toolchain
 export PATH="$(brew --prefix)/opt/llvm/bin:$PATH"
 
+# CmdStan
+export CMDSTAN_HOME="${HOME}/.cmdstan/cmdstan-2.38.0"
+
 # Direnv
 if command -v direnv &> /dev/null; then
     eval "$(direnv hook bash)"
