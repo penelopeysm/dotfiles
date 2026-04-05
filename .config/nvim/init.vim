@@ -62,6 +62,7 @@ require('nvim-treesitter').install {
     "astro",
     "julia",
 }
+vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 EOF
 
 " LSP 
