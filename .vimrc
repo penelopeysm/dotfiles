@@ -8,7 +8,6 @@ Plug 'wellle/targets.vim'
 Plug 'machakann/vim-sandwich'
 Plug 'penelopeysm/edge'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
-Plug 'NLKNguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
 Plug 'lervag/vimtex'
 Plug 'itchyny/vim-haskell-indent'
@@ -279,49 +278,35 @@ let g:mycolor = 'edge'
 " ones that don't support truecolor (macOS Terminal.app, Windows Terminal WSL)
 " are labelled 'xterm-256colors', and those that do (macOS iTerm2) are
 " labelled 'xterm'. Since $TERM is passed over SSH, this will reliably work.
-if $TERM ==# "xterm"
+if $TERM =~# 'xterm\(-ghostty\)\?'
     set termguicolors
-
-    if $TERMCS ==# "light"
-        set background=light
-
-        " Vim-search-pulse default colours are meant for dark mode and look
-        " horrendous on light mode, so we need to override them.
-        let g:vim_search_pulse_color_list = ['#e4e4e4', '#dadada', '#d0d0d0', '#c6c6c6', '#bcbcbc'] 
-
-        if !exists('g:mycolor') || g:mycolor == 'edge'
-            colorscheme edge
-            let g:lightline = {'colorscheme': 'edge'}
-        elseif g:mycolor == 'one'
-            colorscheme one
-            let g:one_allow_italics = 1
-        elseif g:mycolor == 'catppuccin'
-            colorscheme catppuccin
-            let g:lightline = {'colorscheme': 'catppuccin'}
-        else
-            echoerr 'Unrecognised g:mycolor "' . g:mycolor . '"'
-        endif
-
-        " Silly fix for a silly error https://github.com/neovim/neovim/issues/19362
-        " If we don't check for nvim this gives a 'press enter to continue' prompt
-        " every time vim9 is opened
-        " But if we place this in nvim's init.vim it's too slow ¯\_(ツ)_/¯
-        if has('nvim') | echo " " | endif
-
-    else
-        " Note that `sudo vim` doesn't pick up the $TERMCS envvar, so gets
-        " thrown into dark mode. This can be fixed with sudo --preserve-env
-        " if really necessary
-        set background=dark
-        let g:onedark_terminal_italics = 1
-        colorscheme onedark
-        let g:lightline = {'colorscheme': 'one'}
-    endif
-else  " somewhere else, e.g. WSL.
     set background=light
-    colorscheme PaperColor
-    let g:lightline = {'colorscheme': 'PaperColor'}
+
+    " Vim-search-pulse default colours are meant for dark mode and look
+    " horrendous on light mode, so we need to override them.
+    let g:vim_search_pulse_color_list = ['#e4e4e4', '#dadada', '#d0d0d0', '#c6c6c6', '#bcbcbc'] 
+
+    if !exists('g:mycolor') || g:mycolor == 'edge'
+        colorscheme edge
+        let g:lightline = {'colorscheme': 'edge'}
+    elseif g:mycolor == 'one'
+        colorscheme one
+        let g:one_allow_italics = 1
+    elseif g:mycolor == 'catppuccin'
+        colorscheme catppuccin
+        " lightline/catppuccin integration broken as of 2026-06-02
+        " https://github.com/catppuccin/nvim/issues/997
+    else
+        echoerr 'Unrecognised g:mycolor "' . g:mycolor . '"'
+    endif
+
+    " Silly fix for a silly error https://github.com/neovim/neovim/issues/19362
+    " If we don't check for nvim this gives a 'press enter to continue' prompt
+    " every time vim9 is opened
+    " But if we place this in nvim's init.vim it's too slow ¯\_(ツ)_/¯
+    if has('nvim') | echo " " | endif
 endif
+
 set t_ut=""
 " Detect light/dark mode automatically.
 " Also set terminal escape codes for italic text.

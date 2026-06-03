@@ -1,0 +1,51 @@
+font-family = Hack
+font-feature = liga
+font-feature = calt
+font-size = 15
+adjust-cell-height = +8%
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor
+
+# Needed for Claude Code.
+keybind = shift+enter=text:\n
+
+# Extra font features -- some fonts like Monaspace need these to enable
+# all ligatures.
+font-feature = ss01
+font-feature = ss02
+font-feature = ss03
+font-feature = ss04
+font-feature = ss05
+font-feature = ss06
+font-feature = ss07
+font-feature = ss08
+font-feature = ss09
+font-feature = ss10
+
+# This was transferred over from my custom Pastel Light iTerm2 theme (inside
+# dotfiles). Claude helpfully used Python to translate the rgb tuples into
+# hex codes!
+foreground = #8a7178
+background = #faf5f8
+cursor-color = #8a7178
+cursor-text = #4c4f69
+selection-background = #f0e8f0
+selection-foreground = #78446a
+palette = 0=#5c5f77
+palette = 1=#d20f39
+palette = 2=#40a02b
+palette = 3=#df8e1d
+palette = 4=#1e66f5
+palette = 5=#ea76cb
+palette = 6=#179299
+palette = 7=#acb0be
+palette = 8=#6c6f85
+palette = 9=#d20f39
+palette = 10=#40a02b
+palette = 11=#df8e1d
+palette = 12=#1e66f5
+palette = 13=#ea76cb
+palette = 14=#179299
+palette = 15=#bcc0cc
+
