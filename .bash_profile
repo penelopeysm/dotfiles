@@ -32,6 +32,11 @@ if [[ "$LAPTOP" == "ati" ]]; then
     export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
     export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
     export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+
+    alias ca="clifton auth"
+    alias sshi="ssh -A u6eo.aip2.isambard"
+    alias rpush="rsync -av ~/rsync/ u6eo.aip2.isambard:~/rsync/"
+    alias rpull="rsync -av u6eo.aip2.isambard:~/rsync/ ~/rsync/"
 fi
 
 
