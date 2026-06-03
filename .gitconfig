@@ -12,7 +12,7 @@
 # where the key is obtained via gpg --list-secret-keys --keyid-format=long
 
 [commit]
-    gpgsign = true
+	gpgsign = true
 [alias]
     unadd = reset HEAD --
 	recommit = commit --amend --no-edit

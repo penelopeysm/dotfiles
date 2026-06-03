@@ -3,11 +3,21 @@
 #
 # The majority of my shell configuration is in this file. It assumes a MacOS
 # computer (I don't have any others at the moment). Some of it will require
-# specific executables to be installed via Homebrew. These are what I can
-# remember right now:
+# specific executables to be installed via Homebrew.
 #
-# brew install neovim coreutils gnu-sed fd ripgrep tmux fzf
-
+# These are kind of the minimum:
+#
+# brew install neovim coreutils grep gnu-sed fd ripgrep tmux fzf pinentry-mac diff-so-fancy
+#
+# For neovim the setup needed is
+#  - install Rust toolchain
+#  - install treesitter-cli with
+#    cargo install --locked tree-sitter-cli
+#  - then :PlugInstall should take care of the rest.
+#
+# Other things that are generally useful:
+#
+# brew install bash git tlrc gnupg starship pnpm
 
 # Reset $PATH to avoid chaos with tmux on macOS. Note that this has to be at
 # the top of this file. Otherwise it interferes with things like $PS1.
@@ -17,22 +27,19 @@ if [ -f /etc/profile ]; then PATH=""; source /etc/profile; fi
 
 # Determine home vs work laptop from model specifier
 MAC_MODEL=$(sysctl -n hw.model)
-if [[ "$MAC_MODEL" == "MacBookPro16,1" ]]; then LAPTOP="Empoleon";
+if [[ "$MAC_MODEL" == "Mac17,9" ]]; then LAPTOP="Jirachi";
 elif [[ "$MAC_MODEL" == "MacBookPro18,3" ]]; then LAPTOP="ati";
 else LAPTOP="unknown"   # I don't think I use anything else
 fi
 
 
-# Homebrew setup for work laptop (needs to be at the top because of PATH)
-if [[ "$LAPTOP" == "ati" ]]; then
-    # Homebrew setup for M1 Mac
-    export HOMEBREW_PREFIX="/opt/homebrew";
-    export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-    export HOMEBREW_REPOSITORY="/opt/homebrew";
-    export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
-    export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-    export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-fi
+# Homebrew setup for Apple Silicon (needs to be at the top because of PATH)
+export HOMEBREW_PREFIX="/opt/homebrew";
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+export HOMEBREW_REPOSITORY="/opt/homebrew";
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
 
 
 # Terminal prompt and colour scheme setup
@@ -243,14 +250,6 @@ alias dv="deactivate"
 # Haskell
 [ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
 
-# Ruby
-# TODO: Figure out what on earth is going on here ... but not a high priority
-if [[ "$LAPTOP" == "Empoleon" ]]; then
-    PATH=$HOME/.gem/ruby/3.0.0/bin:/usr/local/lib/ruby/gems/3.0.0/bin:/usr/local/opt/ruby/bin:$PATH
-else
-    PATH=/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/3.2.0/bin:${PATH}
-fi
-
 # OCaml
 alias de='dune exec --display=quiet -- '
 alias dbw='dune build --watch'
@@ -262,7 +261,7 @@ PATH="$HOME/.cargo/bin:$PATH"
 [ -f "$HOME/.cargo/env" ] && source "${HOME}/.cargo/env"
 
 # Julia
-PATH="$HOME/.juliaup/bin:$PATH"
+PATH="$HOME/.julia/bin:$HOME/.juliaup/bin:$PATH"
 jp() {
     # Thanks chatgpt
     if [[ "$1" =~ ^\+.+$ ]]; then
@@ -390,6 +389,9 @@ alias r='R --no-save'
 alias R='R --no-save'
 
 # Node.JS
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PNPM_HOME="${HOME}/Library/pnpm"
 PATH="${PNPM_HOME}:${PATH}"
 
@@ -416,8 +418,8 @@ ipdfd () {
 # VSCode
 PATH=$PATH:"/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 
-if [[ "$LAPTOP" == "Empoleon" ]]; then
-    # Handbrake proofs
+if [[ "$LAPTOP" == "Jirachi" ]]; then
+    # Handbrake proofs -- not sure I'll ever use these again but well
     hb () {
         OLD_PWD=$(pwd)
         cd ~/Downloads

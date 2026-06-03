@@ -4,6 +4,8 @@
 .config/*
 !.config/fd
 !.config/lambda-term-inputrc
+!.config/ghostty
+!.config/starship.toml
 
 .nvim/plugged
 .vim/plugged
