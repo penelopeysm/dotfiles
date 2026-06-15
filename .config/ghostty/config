@@ -1,3 +1,5 @@
+auto-update-channel = tip
+
 font-family = Hack
 font-feature = liga
 font-feature = calt
@@ -6,6 +8,8 @@ adjust-cell-height = +8%
 cursor-style = block
 cursor-style-blink = false
 shell-integration-features = no-cursor
+window-inherit-working-directory = false
+tab-inherit-working-directory = false
 
 # Needed for Claude Code.
 keybind = shift+enter=text:\n

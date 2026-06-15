@@ -32,7 +32,6 @@ elif [[ "$MAC_MODEL" == "MacBookPro18,3" ]]; then LAPTOP="ati";
 else LAPTOP="unknown"   # I don't think I use anything else
 fi
 
-
 # Homebrew setup for Apple Silicon (needs to be at the top because of PATH)
 export HOMEBREW_PREFIX="/opt/homebrew";
 export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
@@ -40,6 +39,17 @@ export HOMEBREW_REPOSITORY="/opt/homebrew";
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
 export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
 export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+
+if [[ "$LAPTOP" == "ati" ]]; then
+    alias ca="clifton auth"
+    if [[ "$TERM" == "xterm-ghostty" ]]; then
+        alias sshi="ghostty +ssh -A u6eo.aip2.isambard"
+    else
+        alias sshi="ssh -A u6eo.aip2.isambard"
+    fi
+    alias rpush="rsync -av ~/rsync/ u6eo.aip2.isambard:~/rsync/"
+    alias rpull="rsync -av u6eo.aip2.isambard:~/rsync/ ~/rsync/"
+fi
 
 
 # Terminal prompt and colour scheme setup
@@ -265,6 +275,7 @@ PATH="$HOME/.julia/bin:$HOME/.juliaup/bin:$PATH"
 jp() {
     # Thanks Claude
     local args=(--project=.)
+    [[ "$PWD" == "$HOME/jl/jf" ]] && args+=(--compiled-modules=existing)
     if [[ "$1" =~ ^\+.+$ ]]; then
         julia "$1" "${args[@]}" "${@:2}"
     else
