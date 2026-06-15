@@ -61,6 +61,7 @@ require('nvim-treesitter').install {
     "rust",
     "astro",
     "julia",
+    "bash",
 }
 vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 EOF

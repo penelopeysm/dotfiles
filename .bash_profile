@@ -42,7 +42,11 @@ export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
 
 if [[ "$LAPTOP" == "ati" ]]; then
     alias ca="clifton auth"
-    alias sshi="ssh -A u6eo.aip2.isambard"
+    if [[ "$TERM" == "xterm-ghostty" ]]; then
+        alias sshi="ghostty +ssh -A u6eo.aip2.isambard"
+    else
+        alias sshi="ssh -A u6eo.aip2.isambard"
+    fi
     alias rpush="rsync -av ~/rsync/ u6eo.aip2.isambard:~/rsync/"
     alias rpull="rsync -av u6eo.aip2.isambard:~/rsync/ ~/rsync/"
 fi
@@ -269,11 +273,13 @@ PATH="$HOME/.cargo/bin:$PATH"
 # Julia
 PATH="$HOME/.julia/bin:$HOME/.juliaup/bin:$PATH"
 jp() {
-    # Thanks chatgpt
+    # Thanks Claude
+    local args=(--project=.)
+    [[ "$PWD" == "$HOME/jl/jf" ]] && args+=(--compiled-modules=existing)
     if [[ "$1" =~ ^\+.+$ ]]; then
-        julia "$1" --project=. "${@:2}"
+        julia "$1" "${args[@]}" "${@:2}"
     else
-        julia --project=. "$@"
+        julia "${args[@]}" "$@"
     fi
 }
 njr() {
