@@ -7,7 +7,7 @@
 #
 # These are kind of the minimum:
 #
-# brew install neovim coreutils grep gnu-sed fd ripgrep tmux fzf pinentry-mac diff-so-fancy
+# brew install neovim coreutils grep gnu-sed fd ripgrep tmux fzf pinentry-mac git-delta
 #
 # For neovim the setup needed is
 #  - install Rust toolchain
@@ -263,11 +263,12 @@ PATH="$HOME/.cargo/bin:$PATH"
 # Julia
 PATH="$HOME/.julia/bin:$HOME/.juliaup/bin:$PATH"
 jp() {
-    # Thanks chatgpt
+    # Thanks Claude
+    local args=(--project=.)
     if [[ "$1" =~ ^\+.+$ ]]; then
-        julia "$1" --project=. "${@:2}"
+        julia "$1" "${args[@]}" "${@:2}"
     else
-        julia --project=. "$@"
+        julia "${args[@]}" "$@"
     fi
 }
 njr() {
