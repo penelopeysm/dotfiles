@@ -2,7 +2,11 @@ set textwidth=92
 setlocal nomodeline
 let b:slime_bracketed_paste = 1
 
+" tree-sitter indentation is in after/indent/julia.vim
 if has('nvim')
     lua vim.treesitter.start()
-    lua vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+endif
+
+if executable('jlfmt')
+    command! -range=% -nargs=* JF <line1>,<line2>!jlfmt <args>
 endif

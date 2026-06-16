@@ -7,7 +7,7 @@
 #
 # These are kind of the minimum:
 #
-# brew install neovim coreutils grep gnu-sed fd ripgrep tmux fzf pinentry-mac diff-so-fancy
+# brew install neovim coreutils grep gnu-sed fd ripgrep tmux fzf pinentry-mac git-delta
 #
 # For neovim the setup needed is
 #  - install Rust toolchain
